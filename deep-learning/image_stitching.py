@@ -123,7 +123,7 @@ def predict_and_stitch(model, img1, img2):
 
 # ---------------------- STREAMLIT APP ----------------------
 st.title("Deep Learning based Image stitching")
-st.
+
 img1_file = st.file_uploader("Upload Image 1", type=["jpg", "png", "jpeg"])
 img2_file = st.file_uploader("Upload Image 2", type=["jpg", "png", "jpeg"])
 
