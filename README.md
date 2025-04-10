@@ -6,11 +6,13 @@
 This repository explores different approaches to homography estimation and image stitching, ranging from classical computer vision methods to deep learning-based models. Each subdirectory contains an independent pipeline that demonstrates a unique method for aligning and stitching overlapping images.
 
 ## Folder Structure
-├── `OpenCV-pipeline/`   #Classical feature-based image stitching using OpenCV <br />
-├── `cv2Stitcher/`   # Wrapper around OpenCV's built-in stitching API <br />
-├── `deep-learning/`   # Deep homography estimation using a convolutional neural network <br />
-├── `no-library-from-scratch/`   # Image stitching with minimal OpenCV <br />
-└── `README.md`   # Global documentation <br />
+```
+├── OpenCV-pipeline/
+├── cv2Stitcher/
+├── deep-learning/
+├── no-library-from-scratch/
+└── README.md
+```
 
 ---
 
