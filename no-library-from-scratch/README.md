@@ -1,1 +1,1 @@
-# Implementation of Image Stitching from scratch without use of any library
+# Implementation of Image Stitching from scratch with minimal use of OpenCV library
