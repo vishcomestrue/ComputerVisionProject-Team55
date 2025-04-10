@@ -11,6 +11,7 @@ This repository explores different approaches to homography estimation and image
 ├── cv2Stitcher/
 ├── deep-learning/
 ├── no-library-from-scratch/
+├── requirements.txt
 └── README.md
 ```
 
@@ -68,7 +69,7 @@ A minimal example to implement homography computation and stitching without usin
 
 ## Requirements
 
-Install common dependencies using: `pip install numpy opencv-python torch torchvision matplotlib`
+Install common dependencies using: `pip install -r requirements.txt`
 
 ## License
 
