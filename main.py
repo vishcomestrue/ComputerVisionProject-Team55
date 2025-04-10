@@ -10,7 +10,7 @@ st.sidebar.title("Navigation")
 PAGES = {
     # "OpenCV Pipeline": "OpenCV-pipeline/from_scractch_using_cv_libraries.py",
     "CV2 Stitcher": "cv2Stitcher/cv2_Sticher.py",
-    # "Deep Learning Pipeline": "deep-learning/image_stitching.py",
+    "Deep Learning Pipeline": "deep-learning/image_stitching.py",
     # "No-Library (From Scratch)": "no-library-from-scratch/image_stitching_from_scratch_final.py",
 }
 
