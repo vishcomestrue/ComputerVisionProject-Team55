@@ -20,7 +20,7 @@ import itertools
 from collections import deque
 import io
 
-st.set_page_config(layout="wide")
+#st.set_page_config(layout="wide")
 st.title("Image Stitching from Scratch")
 st.markdown("Upload 2 or more overlapping images and get a stitched panorama!")
 
