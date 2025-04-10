@@ -1,10 +1,11 @@
+import streamlit as st
+st.set_page_config(page_title="Deep Learning based Image Stitching", layout="wide")
 import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import random
-import streamlit as st
 from PIL import Image
 import io
 
@@ -78,7 +79,7 @@ def train_model(model, dataset):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-        st.write(f"Epoch {epoch+1}, Loss: {total_loss:.4f}")
+        # st.write(f"Epoch {epoch+1}, Loss: {total_loss:.4f}")
 
 def predict_and_stitch(model, img1, img2):
     img1 = cv2.resize(img1, (320, 240))
