@@ -8,27 +8,25 @@ Original file is located at
 """
 
 # Importing necessary libraries
-import os
-import cv2
+import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
-from google.colab import files
+import cv2
+import os
+from PIL import Image
+from io import BytesIO
 
-
-# Function to crop black borders from a stitched panorama using contours
+# Crop black borders from the stitched panorama
 def crop_black_borders(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
     if not contours:
         return image
-
     cnt = max(contours, key=cv2.contourArea)
     x, y, w, h = cv2.boundingRect(cnt)
     return image[y:y+h, x:x+w]
 
-# Function to apply feather blending on the overlapping area of stitched images
+# Feather blending function
 def feather_blend(base, warped, mask_warped):
     base_float = base.astype(np.float32)
     warped_float = warped.astype(np.float32)
@@ -42,7 +40,7 @@ def feather_blend(base, warped, mask_warped):
     result = np.clip(result, 0, 255).astype(np.uint8)
     return result
 
-# Function to stitch 2 images
+# Stitch two images using SIFT and blending
 def stitch_pair_sift_with_blending(base_img, new_img):
     gray1 = cv2.cvtColor(base_img, cv2.COLOR_BGR2GRAY)
     gray2 = cv2.cvtColor(new_img, cv2.COLOR_BGR2GRAY)
@@ -59,7 +57,6 @@ def stitch_pair_sift_with_blending(base_img, new_img):
     good = [m for m, n in matches if m.distance < 0.75 * n.distance]
 
     if len(good) < 10:
-        print("Not enough good matches.")
         return None
 
     src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
@@ -68,7 +65,6 @@ def stitch_pair_sift_with_blending(base_img, new_img):
 
     h1, w1 = base_img.shape[:2]
     h2, w2 = new_img.shape[:2]
-
     corners_new = np.float32([[0, 0], [0, h2], [w2, h2], [w2, 0]]).reshape(-1, 1, 2)
     warped_corners = cv2.perspectiveTransform(corners_new, H)
     corners_base = np.float32([[0, 0], [0, h1], [w1, h1], [w1, 0]]).reshape(-1, 1, 2)
@@ -88,67 +84,45 @@ def stitch_pair_sift_with_blending(base_img, new_img):
     blended = feather_blend(translated_base, warped, mask_warped)
     return blended
 
-
-# Function to find sequence of images in which to be stitched
+# Stitch multiple images sequentially
 def stitch_images_sequence(images):
     base = images[0]
     for i in range(1, len(images)):
-        print(f"Stitching image {i}...")
         stitched = stitch_pair_sift_with_blending(base, images[i])
-        if stitched is None:
-            print(f"Skipping image {i}.")
-        else:
+        if stitched is not None:
             base = stitched
     return crop_black_borders(base)
 
-def test_with_your_images():
-    print("📷 Upload 2 or more overlapping images (in any order).")
-    uploaded = files.upload()
-    if len(uploaded) < 2:
-        print("Please upload at least two images.")
-        return
+# Streamlit app
+def main():
+    st.title("Image Stitching using OpenCV Pipeline")
+    st.write("Upload 2 or more overlapping images to stitch them into a panorama.")
 
-    os.makedirs('user_uploads', exist_ok=True)
-    images = []
+    uploaded_files = st.file_uploader("Upload Images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-    for i, (name, data) in enumerate(uploaded.items()):
-        path = f"user_uploads/img_{i}_{name}"
-        with open(path, 'wb') as f:
-            f.write(data)
-        img = cv2.imread(path)
-        if img is not None:
-            images.append(img)
+    if uploaded_files and len(uploaded_files) >= 2:
+        images = []
+        for uploaded_file in uploaded_files:
+            image = Image.open(uploaded_file).convert("RGB")
+            image_np = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+            images.append(image_np)
 
-    if len(images) < 2:
-        print("At least 2 valid images required.")
-        return
+        with st.spinner("Stitching images..."):
+            result = stitch_images_sequence(images)
 
-    print("Stitching and blending images...")
-    result = stitch_images_sequence(images)
+        if result is not None:
+            st.success("Panorama created!")
+            st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), caption="Stitched Panorama", use_column_width=True)
 
-    if result is None:
-        print("Final stitching failed.")
-        return
+            # Save to memory and provide download
+            result_pil = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+            buf = BytesIO()
+            result_pil.save(buf, format="JPEG")
+            st.download_button("Download Panorama", buf.getvalue(), file_name="stitched_panorama.jpg", mime="image/jpeg")
+        else:
+            st.error("Failed to stitch the images. Try different images or order.")
+    else:
+        st.info("Please upload at least two images.")
 
-    result_path = "user_uploads/stitched_result_cleaned.jpg"
-    cv2.imwrite(result_path, result)
-
-    plt.figure(figsize=(20, 10))
-    for i, img in enumerate(images):
-        plt.subplot(1, len(images) + 1, i + 1)
-        plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        plt.title(f"Image {i}")
-        plt.axis('off')
-
-    plt.subplot(1, len(images) + 1, len(images) + 1)
-    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-    plt.title("Stitched Image")
-    plt.axis('off')
-    plt.tight_layout()
-    plt.show()
-
-    print("Panorama saved to:", result_path)
-    print("Download it with:")
-    print(f"files.download('{result_path}')")
-    return result_path
-test_with_your_images()
+if __name__ == "__main__":
+    main()
