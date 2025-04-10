@@ -7,21 +7,24 @@ Original file is located at
     https://colab.research.google.com/drive/1Zuq28wVsP_XLdwfQdGevDxXMgOuhXBQp
 """
 
-#Importing necessary libraries
+
+
+import streamlit as st
 import numpy as np
+import cv2
 from skimage import transform
 from skimage.transform import rescale
 from scipy.ndimage import gaussian_filter
-import matplotlib.pyplot as plt
-import cv2
-import imageio.v2 as imageio
+from PIL import Image
 import itertools
 from collections import deque
-from io import BytesIO
-from PIL import Image
+import io
 
+st.set_page_config(layout="wide")
+st.title("Image Stitching from Scratch")
+st.markdown("Upload 2 or more overlapping images and get a stitched panorama!")
 
-# Function to detect and describe keypoints with SIFT
+# --- SIFT Feature Extraction ---
 def generate_keypoints_descriptors(image):
     gray_img = (image * 255).astype(np.uint8)
     sift = cv2.SIFT_create(nfeatures=5000)
@@ -29,17 +32,12 @@ def generate_keypoints_descriptors(image):
     keypoints = np.array([k.pt[::-1] for k in kp])
     return keypoints, desc
 
-# Function to match descriptors between images
 def match_descriptors(desc1, desc2, ratio_thresh=0.75):
     bf = cv2.BFMatcher()
     matches = bf.knnMatch(desc1, desc2, k=2)
-    good_matches = []
-    for m, n in matches:
-        if m.distance < ratio_thresh * n.distance:
-            good_matches.append((m.queryIdx, m.trainIdx))
+    good_matches = [(m.queryIdx, m.trainIdx) for m, n in matches if m.distance < ratio_thresh * n.distance]
     return good_matches
 
-# Function to compute homography matrix
 def compute_homography(point1, point2):
     A = []
     for (x1, y1), (x2, y2) in zip(point1, point2):
@@ -50,7 +48,6 @@ def compute_homography(point1, point2):
     H = V[-1].reshape(3, 3)
     return H / H[2, 2]
 
-# Function to apply ransac to get robust homography matrix
 def ransac(keypoints1, keypoints2, matches, threshold=5.0, iterations=500):
     best_H, max_inliers, best_inliers = None, 0, []
     if len(matches) < 4:
@@ -74,7 +71,6 @@ def ransac(keypoints1, keypoints2, matches, threshold=5.0, iterations=500):
         return None, []
     return best_H, best_inliers
 
-# Function to create pairwise_matches and match graph
 def find_all_matches(images):
     keypoints, descriptors = [], []
     for img in images:
@@ -95,7 +91,6 @@ def find_all_matches(images):
                 match_graph[j].append(i)
     return pairwise_matches, keypoints, match_graph
 
-# Function to create global homographies
 def compute_global_homographies(pairwise_matches, match_graph, num_images):
     center = max(match_graph, key=lambda k: len(match_graph[k]))
     homographies = {center: np.eye(3)}
@@ -118,7 +113,6 @@ def compute_global_homographies(pairwise_matches, match_graph, num_images):
 
     return homographies
 
-# Function to do warp images, do weighted averaging
 def stitch_all(images, homographies):
     corners = []
     for i, img in enumerate(images):
@@ -144,70 +138,52 @@ def stitch_all(images, homographies):
         warped = transform.warp(img, np.linalg.inv(H_shifted), output_shape=output_shape[:2], order=3, preserve_range=True)
         mask = (warped.sum(axis=-1) > 0).astype(float)
 
-
         dist = cv2.distanceTransform((mask > 0).astype(np.uint8), distanceType=cv2.DIST_L2, maskSize=5)
-        dist /= (dist.max() + 1e-8)
-        dist = np.clip(dist, 0.0, 1.0)
+        dist = np.clip(dist / (dist.max() + 1e-8), 0.0, 1.0)
 
         for c in range(3):
             result[..., c] += warped[..., c] * dist
         weight_sum += dist
 
-    weight_sum[weight_sum == 0] = 1e-8
     result /= weight_sum[..., None]
     result = gaussian_filter(result, sigma=0.5)
     return result
 
-# Function to crop black borders
 def crop_black_borders(image):
-    import cv2
-    import numpy as np
-
-    if image.max() <= 1.0:
-        image = (image * 255).astype(np.uint8)
-    else:
-        image = image.astype(np.uint8)
-
-
+    image = (image * 255).astype(np.uint8)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     mask = gray > 0
-
-
     mask_uint8 = mask.astype(np.uint8) * 255
     contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
     if not contours:
         return image
+    x, y, w, h = cv2.boundingRect(max(contours, key=cv2.contourArea))
+    return image[y:y+h, x:x+w]
 
+# --- Main App Logic ---
+uploaded_files = st.file_uploader("Upload at least 2 overlapping images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-    largest_contour = max(contours, key=cv2.contourArea)
-    x, y, w, h = cv2.boundingRect(largest_contour)
-    cropped = image[y:y+h, x:x+w]
-
-    return cropped
-
-
-
-
-
-# Main Function
-def main():
-    #filepaths = ['building1.jpg', 'building2.jpg', 'building3.jpg','building4.jpg','building5.jpg']
-    #filepaths = ['left.jpeg', 'right.jpeg', 'middle.jpeg']
-    filepaths = ['tajm1.jpg', 'tajm2.jpg', 'tajm3.jpg','tajm4.jpg']
-    images = [rescale(imageio.imread(f)/255.0, 0.5, channel_axis=-1) for f in filepaths]
+if uploaded_files and len(uploaded_files) >= 2:
+    st.info("Processing images...")
+    images = []
+    for uploaded_file in uploaded_files:
+        img = Image.open(uploaded_file).convert("RGB")
+        img_np = np.array(img).astype(np.float32) / 255.0
+        img_np = rescale(img_np, 0.5, channel_axis=-1)
+        images.append(img_np)
 
     pairwise_matches, keypoints, match_graph = find_all_matches(images)
     homographies = compute_global_homographies(pairwise_matches, match_graph, len(images))
-
     panorama = stitch_all(images, homographies)
     panorama = crop_black_borders(panorama)
 
-    plt.figure(figsize=(20, 10))
-    plt.imshow(panorama)
-    plt.axis('off')
-    plt.title("Final Panorama")
-    plt.show()
+    st.success("Stitching complete!")
+    st.image(panorama, caption=" Final Panorama", use_column_width=True)
 
-if __name__ == '__main__':
-    main()
+    result_img = Image.fromarray(panorama.astype(np.uint8))
+    buf = io.BytesIO()
+    result_img.save(buf, format="JPEG")
+    st.download_button("Download Panorama", buf.getvalue(), "stitched_panorama.jpg", "image/jpeg")
+
+else:
+    st.warning("Please upload at least 2 images to proceed.")
