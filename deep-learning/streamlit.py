@@ -9,9 +9,9 @@ source_path = os.path.dirname(os.path.abspath(__file__))
 
 # Define image paths (input1, input2, output)
 image_sets = [
-    (f"{source_path}/images/sample_1.jpg", f"{source_path}/images/sample_2.jpg", f"{source_path}/outputs/sample.png"),
-    (f"{source_path}/images/room_2.jpg", f"{source_path}/images/room_3.jpg", f"{source_path}/outputs/room.png"),
-    (f"{source_path}/images/building_2.jpg", f"{source_path}/images/building_3.jpg", f"{source_path}/outputs/building.png"),
+    (f"{source_path}/images/sample_1.jpg", f"{source_path}/images/sample_2.jpg", f"{source_path}/outputs/sample_1.png"),
+    (f"{source_path}/images/room_2.jpg", f"{source_path}/images/room_3.jpg", f"{source_path}/outputs/room_1.png"),
+    (f"{source_path}/images/building_2.jpg", f"{source_path}/images/building_3.jpg", f"{source_path}/outputs/building_1.png"),
 ]
 
 # Show each set
