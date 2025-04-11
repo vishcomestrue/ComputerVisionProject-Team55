@@ -8,10 +8,10 @@ st.sidebar.title("Navigation")
 
 # Map of display names to script paths
 PAGES = {
-    "OpenCV Pipeline": "OpenCV-pipeline/from_scractch_using_cv_libraries.py",
-    #"CV2 Stitcher": "cv2Stitcher/cv2_Sticher.py",
-    #"Deep Learning Pipeline": "deep-learning/image_stitching.py",
-    #"No-Library (From Scratch)": "no-library-from-scratch/image_stitching_from_scratch_final.py",
+    # "OpenCV Pipeline": "OpenCV-pipeline/from_scractch_using_cv_libraries.py",
+    "CV2 Stitcher": "cv2Stitcher/cv2_Sticher.py",
+    # "Deep Learning Pipeline": "deep-learning/image_stitching.py",
+    "No-Library (From Scratch)": "no-library-from-scratch/image_stitching_from_scratch_final.py",
 }
 
 choice = st.sidebar.radio("Choose a pipeline:", list(PAGES.keys()))
