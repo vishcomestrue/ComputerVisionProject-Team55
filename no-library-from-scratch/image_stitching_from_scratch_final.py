@@ -178,7 +178,7 @@ if uploaded_files and len(uploaded_files) >= 2:
     panorama = crop_black_borders(panorama)
 
     st.success("Stitching complete!")
-    st.image(panorama, caption=" Final Panorama", use_column_width=True)
+    st.image(panorama, caption=" Final Panorama", use_container_width=True)
 
     result_img = Image.fromarray(panorama.astype(np.uint8))
     buf = io.BytesIO()
