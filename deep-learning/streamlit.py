@@ -20,15 +20,15 @@ for idx, (img1_path, img2_path, output_path) in enumerate(image_sets):
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image(img1_path, caption="Input Image 1", use_column_width=True)
+        st.image(img1_path, caption="Input Image 1", use_container_width=True)
     with col2:
-        st.image(img2_path, caption="Input Image 2", use_column_width=True)
+        st.image(img2_path, caption="Input Image 2", use_container_width=True)
 
     # Show result button
     show = st.button(f"View Result {idx + 1}", key=f"result_{idx}")
     if show:
         if os.path.exists(output_path):
-            st.image(output_path, caption="Stitched Output", use_column_width=True)
+            st.image(output_path, caption="Stitched Output", use_container_width=True)
         else:
             st.warning("Output image not found.")
     st.markdown("---")
