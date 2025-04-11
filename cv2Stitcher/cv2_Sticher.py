@@ -22,7 +22,7 @@ if uploaded_files:
 
         if status == cv2.Stitcher_OK:
             # result_resized = cv2.resize(result, (800, 600))
-            st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), caption="Stitched Panorama", use_column_width=True)
+            st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), caption="Stitched Panorama", use_container_width=True)
         else:
             st.error(f"Stitching failed. Error code: {status}")
     else:
