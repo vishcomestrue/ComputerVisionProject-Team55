@@ -103,7 +103,7 @@ def main():
 
         if result is not None:
             st.success("Panorama created!")
-            st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), caption="Stitched Panorama", use_column_width=True)
+            st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), caption="Stitched Panorama", use_container_width=True)
 
             # Save to memory and provide download
             result_pil = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
