@@ -7,7 +7,7 @@ st.title("Image Stitching Showcase")
 
 # Define image paths (input1, input2, output)
 image_sets = [
-    ("images/sample_1.jpg", "images/sample_2.jpg", "outputs/sample.png"),
+    ("./images/sample_1.jpg", "./images/sample_2.jpg", "./outputs/sample.png"),
     ("images/room_2.jpg", "images/room_3.jpg", "outputs/room.png"),
     ("images/building_2.jpg", "images/building_3.jpg", "outputs/building.png"),
 ]
