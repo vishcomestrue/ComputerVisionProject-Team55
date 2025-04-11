@@ -5,6 +5,8 @@ from PIL import Image
 #st.set_page_config(layout="wide")
 st.title("Image Stitching Showcase")
 
+st.write(os.path.dirname(os.path.abspath(__file__)))
+
 # Define image paths (input1, input2, output)
 image_sets = [
     ("images/sample_1.jpg", "images/sample_2.jpg", "outputs/sample.png"),
