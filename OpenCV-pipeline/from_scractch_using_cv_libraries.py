@@ -86,7 +86,7 @@ def stitch_images_sequence(images):
 
 # Streamlit app
 def main():
-    st.title("Image Stitching using OpenCV Pipeline")
+    st.title("OpenCV Pipeline")
     st.write("Upload 2 or more overlapping images to stitch them into a panorama.")
 
     uploaded_files = st.file_uploader("Upload Images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
