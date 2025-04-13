@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 #st.set_page_config(layout="wide")
-st.title("Image Stitching Showcase")
+st.title("Deep Learning based stitching")
 
 source_path = os.path.dirname(os.path.abspath(__file__))
 
