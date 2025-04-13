@@ -22,7 +22,6 @@ import io
 
 #st.set_page_config(layout="wide")
 st.title("Implementation from scratch")
-st.header("Priyabrata Saha (M24IRM004)")
 st.markdown("Upload 2 or more overlapping images and get a stitched panorama!")
 
 # --- SIFT Feature Extraction ---
