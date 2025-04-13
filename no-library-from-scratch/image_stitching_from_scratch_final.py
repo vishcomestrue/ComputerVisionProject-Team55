@@ -21,7 +21,8 @@ from collections import deque
 import io
 
 #st.set_page_config(layout="wide")
-st.title("Image Stitching from Scratch")
+st.title("Implementation from scratch")
+st.header("Priyabrata Saha (M24IRM004))
 st.markdown("Upload 2 or more overlapping images and get a stitched panorama!")
 
 # --- SIFT Feature Extraction ---
@@ -183,7 +184,7 @@ if uploaded_files and len(uploaded_files) >= 2:
     result_img = Image.fromarray(panorama.astype(np.uint8))
     buf = io.BytesIO()
     result_img.save(buf, format="JPEG")
-    st.download_button("Download Panorama", buf.getvalue(), "stitched_panorama.jpg", "image/jpeg")
+    # st.download_button("Download Panorama", buf.getvalue(), "stitched_panorama.jpg", "image/jpeg")
 
 else:
     st.warning("Please upload at least 2 images to proceed.")
