@@ -4,7 +4,7 @@ import numpy as np
 import tempfile
 import os
 
-st.title("Image Stitching with OpenCV")
+st.title("cv.stitcher()")
 st.write("Upload 2 overlapping images to create a panorama.")
 
 uploaded_files = st.file_uploader("Upload images", accept_multiple_files=True, type=['jpg', 'jpeg', 'png'])
